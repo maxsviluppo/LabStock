@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "Material": {
+      "title": "Material",
+      "description": "A material stored in the warehouse.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "The name or description of the material."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The current quantity in stock."
+        },
+        "unitCost": {
+          "type": "number",
+          "description": "The cost per unit of the material."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Optional image data (Base64) or URL."
+        },
+        "totalCost": {
+          "type": "number",
+          "description": "The total cost of the material (quantity * unitCost)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the material was first registered."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the material was last updated."
+        }
+      },
+      "required": ["description", "quantity"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A record of material entry or exit.",
+      "type": "object",
+      "properties": {
+        "materialId": {
+          "type": "string",
+          "description": "The ID of the material involved."
+        },
+        "materialDescription": {
+          "type": "string",
+          "description": "Denormalized description of the material for history."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["in", "out"],
+          "description": "Whether it's an entry (in) or exit (out)."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity added or removed."
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date of the transaction."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description for the transaction."
+        }
+      },
+      "required": ["materialId", "materialDescription", "type", "quantity", "date", "description"]
+    }
+  },
+  "firestore": {
+    "materials": {
+      "schema": "Material",
+      "description": "Collection of materials in stock."
+    },
+    "transactions": {
+      "schema": "Transaction",
+      "description": "History of stock movements."
+    }
+  }
+}

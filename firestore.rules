@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidMaterial(data) {
+      return data.keys().hasAll(['description', 'quantity']) &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 200 &&
+             data.quantity is number &&
+             (!('unitCost' in data) || data.unitCost is number) &&
+             (!('totalCost' in data) || data.totalCost is number) &&
+             (!('imageUrl' in data) || data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() < 1000000));
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['materialId', 'materialDescription', 'type', 'quantity', 'date', 'description']) &&
+             data.materialId is string &&
+             data.materialDescription is string &&
+             data.type in ['in', 'out'] &&
+             data.quantity is number && data.quantity > 0 &&
+             data.date is string &&
+             data.description is string;
+    }
+
+    match /materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidMaterial(request.resource.data);
+      allow update: if isAuthenticated() && isValidMaterial(request.resource.data);
+      allow delete: if isAuthenticated();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidTransaction(request.resource.data);
+      allow update: if false; // Transactions are historical records
+      allow delete: if isAuthenticated();
+    }
+  }
+}

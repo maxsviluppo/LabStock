@@ -1,0 +1,5 @@
+{
+  "name": "LabStock - Gestione Magazzino",
+  "description": "Un'applicazione minimalista per la gestione del magazzino di laboratorio, con tracciamento di entrate, uscite e costi.",
+  "requestFramePermissions": []
+}
