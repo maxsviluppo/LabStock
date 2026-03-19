@@ -22,7 +22,8 @@ import {
   CheckCircle2,
   Search,
   Camera,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Euro
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -407,7 +408,7 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="flex items-center gap-5 bg-gradient-to-br from-pink-500 to-pink-600 text-white border-none">
             <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
-              <DollarSign size={28} />
+              <Euro size={28} />
             </div>
             <div>
               <p className="text-pink-100 text-xs font-bold uppercase tracking-widest">Spesa Totale</p>

@@ -7,9 +7,11 @@ service cloud.firestore {
     }
 
     function isValidMaterial(data) {
-      return data.keys().hasAll(['description', 'quantity']) &&
+      return data.keys().hasAll(['description', 'quantity', 'createdAt', 'updatedAt']) &&
              data.description is string && data.description.size() > 0 && data.description.size() < 200 &&
              data.quantity is number &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
              (!('unitCost' in data) || data.unitCost is number) &&
              (!('totalCost' in data) || data.totalCost is number) &&
              (!('imageUrl' in data) || data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() < 1000000));
