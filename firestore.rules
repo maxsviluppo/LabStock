@@ -27,6 +27,19 @@ service cloud.firestore {
              data.description is string;
     }
 
+    function isValidUser(data) {
+      return data.keys().hasAll(['displayName', 'email', 'createdAt']) &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
+             data.email is string &&
+             data.createdAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId && isValidUser(request.resource.data);
+      allow update: if isAuthenticated() && request.auth.uid == userId && isValidUser(request.resource.data);
+    }
+
     match /materials/{materialId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && isValidMaterial(request.resource.data);

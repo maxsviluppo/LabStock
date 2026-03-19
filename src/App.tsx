@@ -44,7 +44,10 @@ import {
   GoogleAuthProvider, 
   onAuthStateChanged, 
   signOut,
-  User
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
 } from 'firebase/auth';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -52,6 +55,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 import { db, auth } from './firebase';
+import { setDoc } from 'firebase/firestore';
 
 // Utility for tailwind classes
 function cn(...inputs: ClassValue[]) {
@@ -144,6 +148,11 @@ const Input = ({ label, error, ...props }: React.InputHTMLAttributes<HTMLInputEl
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'google'>('google');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [materials, setMaterials] = useState<Material[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
@@ -179,14 +188,86 @@ export default function App() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Simple resize logic could be added here if needed
-        setSelectedImage(reader.result as string);
+        const img = new Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG with 0.7 quality to stay well under 1MB
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          setSelectedImage(compressedBase64);
+        };
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const login = () => signInWithPopup(auth, new GoogleAuthProvider());
+  const loginWithGoogle = async () => {
+    setAuthLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      // Save user to firestore if new
+      if (result.user) {
+        await setDoc(doc(db, 'users', result.user.uid), {
+          displayName: result.user.displayName,
+          email: result.user.email,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+      }
+    } catch (error: any) {
+      console.error("Google Login Error:", error);
+      setNotification({ type: 'error', message: 'Errore accesso Google. Controlla domini autorizzati.' });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    try {
+      if (authMode === 'signup') {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(result.user, { displayName });
+        // Manually update user state to reflect displayName immediately
+        setUser({ ...result.user, displayName } as User);
+        await setDoc(doc(db, 'users', result.user.uid), {
+          displayName,
+          email,
+          createdAt: serverTimestamp()
+        });
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (error: any) {
+      setNotification({ type: 'error', message: error.message });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const logout = () => signOut(auth);
 
   // Firestore Data
@@ -370,10 +451,83 @@ export default function App() {
             <h1 className="text-4xl font-bold text-pink-900 tracking-tight">LabStock</h1>
             <p className="text-pink-600/70 text-lg">Gestione magazzino laboratorio semplice ed efficace.</p>
           </div>
-          <Button onClick={login} size="lg" className="w-full py-4 text-lg">
-            <LogIn className="mr-2" size={20} />
-            Accedi con Google
-          </Button>
+
+          {authMode === 'google' ? (
+            <div className="space-y-4">
+              <Button 
+                onClick={loginWithGoogle} 
+                size="lg" 
+                className="w-full py-4 text-lg"
+                disabled={authLoading}
+              >
+                {authLoading ? 'Accesso in corso...' : (
+                  <>
+                    <LogIn className="mr-2" size={20} />
+                    Accedi con Google
+                  </>
+                )}
+              </Button>
+              <button 
+                onClick={() => setAuthMode('login')}
+                className="text-pink-500 text-sm font-semibold hover:underline"
+                disabled={authLoading}
+              >
+                Usa Email e Password
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleEmailAuth} className="space-y-4 text-left">
+              {authMode === 'signup' && (
+                <Input 
+                  label="Nome Completo" 
+                  value={displayName} 
+                  onChange={(e) => setDisplayName(e.target.value)} 
+                  placeholder="Mario Rossi"
+                  required 
+                  disabled={authLoading}
+                />
+              )}
+              <Input 
+                label="Email" 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="email@esempio.it"
+                required 
+                disabled={authLoading}
+              />
+              <Input 
+                label="Password" 
+                type="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                placeholder="••••••••"
+                required 
+                disabled={authLoading}
+              />
+              <Button type="submit" size="lg" className="w-full py-4 text-lg" disabled={authLoading}>
+                {authLoading ? 'Caricamento...' : (authMode === 'signup' ? 'Registrati' : 'Accedi')}
+              </Button>
+              <div className="flex flex-col items-center gap-2 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+                  className="text-pink-500 text-sm font-semibold hover:underline"
+                  disabled={authLoading}
+                >
+                  {authMode === 'login' ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'}
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setAuthMode('google')}
+                  className="text-pink-400 text-xs hover:underline"
+                  disabled={authLoading}
+                >
+                  Torna all'accesso Google
+                </button>
+              </div>
+            </form>
+          )}
         </Card>
       </div>
     );

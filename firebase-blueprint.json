@@ -71,6 +71,27 @@
         }
       },
       "required": ["materialId", "materialDescription", "type", "quantity", "date", "description"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the user account was created."
+        }
+      },
+      "required": ["displayName", "email", "createdAt"]
     }
   },
   "firestore": {
@@ -81,6 +102,10 @@
     "transactions": {
       "schema": "Transaction",
       "description": "History of stock movements."
+    },
+    "users": {
+      "schema": "User",
+      "description": "Collection of user profiles."
     }
   }
 }
