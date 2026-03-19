@@ -452,32 +452,10 @@ export default function App() {
             <p className="text-pink-600/70 text-lg">Gestione magazzino laboratorio semplice ed efficace.</p>
           </div>
 
-          {authMode === 'google' ? (
-            <div className="space-y-4">
-              <Button 
-                onClick={loginWithGoogle} 
-                size="lg" 
-                className="w-full py-4 text-lg"
-                disabled={authLoading}
-              >
-                {authLoading ? 'Accesso in corso...' : (
-                  <>
-                    <LogIn className="mr-2" size={20} />
-                    Accedi con Google
-                  </>
-                )}
-              </Button>
-              <button 
-                onClick={() => setAuthMode('login')}
-                className="text-pink-500 text-sm font-semibold hover:underline"
-                disabled={authLoading}
-              >
-                Usa Email e Password
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleEmailAuth} className="space-y-4 text-left">
-              {authMode === 'signup' && (
+          <div className="space-y-6">
+            {authMode === 'signup' ? (
+              <form onSubmit={handleEmailAuth} className="space-y-4 text-left">
+                <h2 className="text-xl font-bold text-center mb-4">Crea Account</h2>
                 <Input 
                   label="Nome Completo" 
                   value={displayName} 
@@ -486,48 +464,95 @@ export default function App() {
                   required 
                   disabled={authLoading}
                 />
-              )}
-              <Input 
-                label="Email" 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="email@esempio.it"
-                required 
-                disabled={authLoading}
-              />
-              <Input 
-                label="Password" 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="••••••••"
-                required 
-                disabled={authLoading}
-              />
-              <Button type="submit" size="lg" className="w-full py-4 text-lg" disabled={authLoading}>
-                {authLoading ? 'Caricamento...' : (authMode === 'signup' ? 'Registrati' : 'Accedi')}
-              </Button>
-              <div className="flex flex-col items-center gap-2 pt-2">
+                <Input 
+                  label="Email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="email@esempio.it"
+                  required 
+                  disabled={authLoading}
+                />
+                <Input 
+                  label="Password" 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  placeholder="••••••••"
+                  required 
+                  disabled={authLoading}
+                />
+                <Button type="submit" size="lg" className="w-full py-4 text-lg" disabled={authLoading}>
+                  {authLoading ? 'Caricamento...' : 'Registrati'}
+                </Button>
                 <button 
                   type="button"
-                  onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
-                  className="text-pink-500 text-sm font-semibold hover:underline"
+                  onClick={() => setAuthMode('login')}
+                  className="w-full text-pink-500 text-sm font-semibold hover:underline text-center"
                   disabled={authLoading}
                 >
-                  {authMode === 'login' ? 'Non hai un account? Registrati' : 'Hai già un account? Accedi'}
+                  Hai già un account? Accedi
                 </button>
-                <button 
-                  type="button"
-                  onClick={() => setAuthMode('google')}
-                  className="text-pink-400 text-xs hover:underline"
+              </form>
+            ) : (
+              <div className="space-y-6">
+                <Button 
+                  onClick={loginWithGoogle} 
+                  size="lg" 
+                  className="w-full py-4 text-lg bg-white text-pink-600 border border-pink-100 hover:bg-pink-50 shadow-none"
                   disabled={authLoading}
                 >
-                  Torna all'accesso Google
-                </button>
+                  {authLoading ? 'Accesso in corso...' : (
+                    <>
+                      <img src="https://www.google.com/favicon.ico" className="w-5 h-5 mr-3" alt="Google" />
+                      Accedi con Google
+                    </>
+                  )}
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-pink-100"></span>
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
+                    <span className="bg-white px-3 text-pink-400 font-bold">Oppure con Email</span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleEmailAuth} className="space-y-4 text-left">
+                  <Input 
+                    label="Email" 
+                    type="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="email@esempio.it"
+                    required 
+                    disabled={authLoading}
+                  />
+                  <Input 
+                    label="Password" 
+                    type="password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="••••••••"
+                    required 
+                    disabled={authLoading}
+                  />
+                  <Button type="submit" size="lg" className="w-full py-4 text-lg" disabled={authLoading}>
+                    {authLoading ? 'Accesso in corso...' : 'Accedi'}
+                  </Button>
+                  <button 
+                    type="button"
+                    onClick={() => setAuthMode('signup')}
+                    className="w-full text-pink-500 text-sm font-semibold hover:underline text-center"
+                    disabled={authLoading}
+                  >
+                    Non hai un account? Registrati
+                  </button>
+                </form>
               </div>
-            </form>
-          )}
+            )}
+          </div>
         </Card>
       </div>
     );
