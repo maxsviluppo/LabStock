@@ -833,7 +833,6 @@ export default function App() {
                       ref={fileInputRef} 
                       className="hidden" 
                       accept="image/*" 
-                      capture="environment"
                       onChange={handleImageChange} 
                     />
                   </div>
@@ -898,7 +897,6 @@ export default function App() {
                       ref={fileInputRef} 
                       className="hidden" 
                       accept="image/*" 
-                      capture="environment"
                       onChange={handleImageChange} 
                     />
                   </div>
