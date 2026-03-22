@@ -135,7 +135,7 @@ const Input = ({ label, error, ...props }: React.InputHTMLAttributes<HTMLInputEl
     {label && <label className="text-xs font-semibold text-pink-700/70 uppercase tracking-wider ml-1">{label}</label>}
     <input 
       className={cn(
-        'w-full bg-white/50 border border-pink-100 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400/30 transition-all placeholder:text-pink-300',
+        'w-full bg-white/50 border border-pink-100 rounded-2xl px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-pink-400/30 transition-all placeholder:text-pink-300',
         error && 'border-red-300 focus:ring-red-400/30',
         props.className
       )}
@@ -631,7 +631,7 @@ export default function App() {
                   <input 
                     type="text" 
                     placeholder="Cerca materiale..." 
-                    className="pl-10 pr-4 py-2 bg-white rounded-full border border-pink-100 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400/20 w-full md:w-64"
+                    className="pl-10 pr-4 py-2 bg-white rounded-full border border-pink-100 text-base focus:outline-none focus:ring-2 focus:ring-pink-400/20 w-full md:w-64"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
