@@ -682,13 +682,13 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center justify-center md:justify-end gap-6 w-full md:w-auto">
                           <div className="text-right hidden md:block">
                             <p className="text-[10px] font-bold text-pink-400 uppercase tracking-widest">Costo Totale</p>
                             <p className="font-bold text-pink-900">€ {(material.totalCost || 0).toFixed(2)}</p>
                           </div>
                           
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="hidden md:flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button 
                               variant="secondary" 
                               size="sm" 
@@ -717,10 +717,16 @@ export default function App() {
                               <Trash2 size={18} />
                             </Button>
                           </div>
-                          <div className="md:hidden flex gap-2">
-                             <Button variant="secondary" size="sm" onClick={() => setIsRecordingExit(material)}>Scarica</Button>
-                             <Button variant="outline" size="sm" onClick={() => setEditingMaterial(material)}>Modifica</Button>
-                             <Button variant="ghost" size="sm" className="text-red-400" onClick={() => handleDeleteMaterial(material)}>Elimina</Button>
+                          <div className="md:hidden flex items-center justify-center gap-2 w-full">
+                             <Button variant="secondary" size="sm" className="flex-1 py-2.5 rounded-xl" onClick={() => setIsRecordingExit(material)}>
+                               <Minus size={14} className="mr-1" /> Scarica
+                             </Button>
+                             <Button variant="outline" size="sm" className="flex-1 py-2.5 rounded-xl" onClick={() => setEditingMaterial(material)}>
+                               <Edit3 size={14} className="mr-1" /> Modifica
+                             </Button>
+                             <Button variant="ghost" size="sm" className="flex-1 py-2.5 rounded-xl text-red-500" onClick={() => handleDeleteMaterial(material)}>
+                               <Trash2 size={14} className="mr-1" /> Elimina
+                             </Button>
                           </div>
                         </div>
                       </div>
